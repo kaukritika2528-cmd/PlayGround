@@ -13,6 +13,7 @@
 const c=document.getElementById('game'),x=c.getContext('2d');x.imageSmoothingEnabled=false;
 const W=960,H=540,T=32;
 let scene='world',keys={},tick=0,toast='',toastT=0,battle=null,battleStep=0,battleMsg='',partyHP=38,partyMax=38,coins=120,healing=false;
+let leaguePoints=0,leagueWins=0,leagueRank='BRONZE';
 const player={x:8*32+16,y:10*32+16,dir:0,moving:false};
 const map=[
 '####################','####################','##......##..........','##.###..##.#######.','##.###..##.#######.','##......##.....###.','##.######.###.....','##.######.###.###.','##........###.###.','####.######...###.','####.######.T.###.','####......C.......','####.######.T.###.','##.......###.###.','##.#####.###.###.','##.#####.###.###.','##.#####....######.','##.########.######.','##................','####################'];
@@ -40,13 +41,14 @@ function drawWorld(){
   rect(player.x-12,player.y-14,24,8,'#d4b84c');rect(player.x-8,player.y+8,16,10,'#315a99');rect(player.x-10,player.y+16,7,5,'#563824');rect(player.x+3,player.y+16,7,5,'#563824');
   if(player.dir===0)rect(player.x-6,player.y-8,4,3,'#203040');rect(player.x+3,player.y-8,4,3,'#203040');
   // HUD
-  rect(16,16,220,58,'#102838');rect(22,22,208,46,'#f5eacb');text('VERDANT TOWN',34,52,20,'#17334a');rect(770,16,174,58,'#102838');rect(776,22,162,46,'#f5eacb');text('● '+coins+'  ✦ 1',814,52,18,'#17334a');
+  rect(16,16,220,58,'#102838');rect(22,22,208,46,'#f5eacb');text('VERDANT TOWN',34,52,20,'#17334a');rect(770,16,174,58,'#102838');rect(776,22,162,46,'#f5eacb');text('● '+coins+'  '+leagueRank,788,52,15,'#17334a');text(leaguePoints+' RP',788,66,11,'#17334a');
   if(toastT>0){rect(250,444,460,58,'#102838ee');rect(258,452,444,42,'#f5eacb');text(toast,480,479,17,'#17334a','center')}
 }
 function move(){let dx=0,dy=0;if(keys.ArrowLeft)dx=-1;if(keys.ArrowRight)dx=1;if(keys.ArrowUp)dy=-1;if(keys.ArrowDown)dy=1;if(dx&&dy)dy=0;if(!dx&&!dy)return; if(dx<0)player.dir=1;if(dx>0)player.dir=3;if(dy<0)player.dir=0;if(dy>0)player.dir=2;let nx=player.x+dx*2,ny=player.y+dy*2;let tr=Math.floor(ny/T),tc=Math.floor(nx/T);if(tr<0||tr>=20||tc<0||tc>=20||solids.has(map[tr][tc])||map[tr][tc]==='~')return;player.x=nx;player.y=ny;player.moving=true;if(Math.random()<0.012&&((tc>=11&&tc<=18)||(tr>=12&&tr<=17))){startBattle()} }
-function interact(){let px=Math.floor(player.x/T),py=Math.floor(player.y/T),dx=[0,0,-1,1][player.dir],dy=[-1,1,0,0][player.dir],tx=px+dx,ty=py+dy;if(tx===7&&ty===8){showToast('The ranger: Catch creatures with Cubes!') }else if(tx>=12&&tx<=18&&ty>=2&&ty<=6){showToast('Fresh pond water sparkles.')}else if(tx===10&&ty===11){showToast('TRAIL: Venture north for wild creatures.')}else{showToast('Nothing to interact with here.')}}
+function interact(){let px=Math.floor(player.x/T),py=Math.floor(player.y/T),dx=[0,0,-1,1][player.dir],dy=[-1,1,0,0][player.dir],tx=px+dx,ty=py+dy;if(tx===7&&ty===8){showToast('MASTER LEAGUE!');setTimeout(()=>startBattle(true),500)}else if(tx>=12&&tx<=18&&ty>=2&&ty<=6){showToast('Fresh pond water sparkles.')}else if(tx===10&&ty===11){showToast('TRAIL: League battles lie in the wild.')}else if(tx===4&&ty>=8&&ty<=10){showToast('Master League arena — enter and battle!');setTimeout(()=>startBattle(true),500)}else{showToast('Nothing to interact with here.')}}
 function showToast(s){toast=s;toastT=180}
-function startBattle(){wild={name:creatures[Math.floor(Math.random()*creatures.length)],level:3+Math.floor(Math.random()*3)};wildMax=20+wild.level*3;wildHP=wildMax;battleStep=0;battleMsg=`A wild ${wild.name} appeared!`;scene='battle'}
+let leagueBattle=false;
+function startBattle(isLeague=false){leagueBattle=isLeague;wild={name:isLeague?'AUREON':creatures[Math.floor(Math.random()*creatures.length)],level:isLeague?18+Math.floor(Math.random()*4):3+Math.floor(Math.random()*3)};wildMax=isLeague?85+wild.level*2:20+wild.level*3;wildHP=wildMax;battleStep=0;battleMsg=isLeague?`MASTER LEAGUE: ${wild.name} challenges you!`:`A wild ${wild.name} appeared!`;scene='battle'}
 function drawBattle(){
   rect(0,0,W,H,'#bfe6c6');rect(0,0,W,170,'#91cfe1');for(let i=0;i<6;i++){rect(i*180-40,100+(i%2)*20,230,75,'#65af72');rect(i*180-20,90+(i%2)*20,190,55,'#78c486')}rect(0,350,W,190,'#e7d995');
   // enemy creature
@@ -54,7 +56,7 @@ function drawBattle(){
   rect(60,54,330,104,'#16384b');rect(66,60,318,92,'#fff8df');text(wild.name.toUpperCase(),86,92,20,'#18364a');text(`Lv ${wild.level}`,312,92,18,'#18364a','right');drawBar(86,122,wildHP,wildMax,274);
   // player creature
   rect(170,310,190,105,'#3d9658');rect(194,275,145,145,'#5f9c57');rect(220,260,95,70,'#75b96c');rect(230,245,75,55,'#75b96c');rect(235,270,12,10,'#17252a');rect(290,270,12,10,'#17252a');rect(245,300,30,14,'#d8d795');rect(160,390,215,22,'#39794955');
-  rect(568,288,330,118,'#16384b');rect(574,294,318,106,'#fff8df');text('SPROUT',598,326,20,'#18364a');text(`Lv 5`,815,326,18,'#18364a','right');drawBar(598,350,partyHP,partyMax,268);
+  rect(568,288,330,118,'#16384b');rect(574,294,318,106,'#fff8df');text('SPROUT',598,326,20,'#18364a');text(leagueBattle?'MASTER':'Lv 5',815,326,18,leagueBattle?'#a66d24':'#18364a','right');drawBar(598,350,partyHP,partyMax,268);
   rect(0,438,W,102,'#16384b');rect(10,448,940,82,'#f8efcf');text(battleMsg,36,494,21,'#18364a');
   if(battleStep===0){drawMenu(['FIGHT','PACK','CUBE','RUN'],6)}
 }
@@ -63,8 +65,8 @@ function drawMenu(items,cols){let start=610;for(let i=0;i<items.length;i++){let 
 function battleAction(){if(battleStep===1)return;if(battleStep===0){battleStep=1;battleMsg='Choose a move!';setTimeout(()=>{battleStep=0;battleMsg='1) Leaf Lash  2) Quick Bite  3) Guard';battleMoveMenu=true},300)} }
 let battleMoveMenu=false;
 function handleBattleKey(k){if(k==='Escape'){if(battleMoveMenu){battleMoveMenu=false;battleStep=0;battleMsg=`What will SPROUT do?`};return}if(k==='Enter'){if(!battleMoveMenu){if(battleStep===0){battleMoveMenu=true;battleMsg='Leaf Lash   |   Quick Bite   |   Guard'}else if(battleStep===1){battleMsg='1) Leaf Lash  2) Quick Bite  3) Guard'};return}attack(0)}if(k==='ArrowRight'||k==='ArrowLeft'||k==='ArrowDown'||k==='ArrowUp'){battleStep=(battleStep+1)%4}}
-function attack(){let damage=7+Math.floor(Math.random()*6);wildHP-=damage;if(wildHP<=0){battleMoveMenu=false;coins+=25;battleMsg=`${wild.name} fainted! You won 25 coins.`;setTimeout(()=>{scene='world';partyHP=Math.max(1,partyHP)},900);return}battleMsg=`Sprout used Leaf Lash! ${damage} damage!`;battleMoveMenu=false;battleStep=0;setTimeout(()=>{if(scene==='battle')enemyTurn()},700)}
-function enemyTurn(){let damage=4+Math.floor(Math.random()*5);partyHP-=damage;if(partyHP<=0){battleMsg='Sprout retreated. It is back in town!';setTimeout(()=>{partyHP=partyMax;player.x=8*32+16;player.y=10*32+16;scene='world'},900)}else battleMsg=`${wild.name} struck back for ${damage}!`}
+function attack(){let damage=(leagueBattle?13:7)+Math.floor(Math.random()*(leagueBattle?9:6));wildHP-=damage;if(wildHP<=0){battleMoveMenu=false;if(leagueBattle){leagueWins++;leaguePoints+=35;coins+=100;if(leaguePoints>=100)leagueRank='MASTER';else if(leaguePoints>=60)leagueRank='GOLD';else leagueRank='SILVER';battleMsg=`LEAGUE CHAMPION: ${wild.name} defeated! +35 rank points` }else{coins+=25;battleMsg=`${wild.name} fainted! You won 25 coins.`}setTimeout(()=>{scene='world';partyHP=Math.max(1,partyHP)},leagueBattle?1400:900);return}battleMsg=`Sprout used Leaf Lash! ${damage} damage!`;battleMoveMenu=false;battleStep=0;setTimeout(()=>{if(scene==='battle')enemyTurn()},700)}
+function enemyTurn(){let damage=(leagueBattle?10:4)+Math.floor(Math.random()*(leagueBattle?8:5));partyHP-=damage;if(partyHP<=0){battleMsg='Sprout retreated. It is back in town!';setTimeout(()=>{partyHP=partyMax;player.x=8*32+16;player.y=10*32+16;scene='world'},900)}else battleMsg=`${wild.name} struck back for ${damage}!`}
 window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Enter'].includes(e.key))e.preventDefault();keys[e.key]=true;if(scene==='world'&&(e.key==='Enter'||e.key===' '))interact();if(scene==='battle')handleBattleKey(e.key);});
 window.addEventListener('keyup',e=>keys[e.key]=false);document.querySelectorAll('[data-key]').forEach(b=>{let k=b.dataset.key;let go=e=>{e.preventDefault();keys[k]=true;if(k==='Enter'||k==='Escape'){if(scene==='world'&&k==='Enter')interact();if(scene==='battle')handleBattleKey(k)}};let stop=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',go);b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop)});
 function loop(){tick++;if(scene==='world'){move();drawWorld();if(toastT>0)toastT--}else drawBattle();requestAnimationFrame(loop)}loop();
