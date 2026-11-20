@@ -22,6 +22,7 @@ const creatures=['Mossling','Embercub','Shellbit','Voltfin','Leaflet'];
 let wild=null,wildHP=28,wildMax=28;
 function rect(a,b,w,h,k){x.fillStyle=k;x.fillRect(a,b,w,h)}
 function text(t,a,b,size=20,col='#fff',align='left'){x.font=`bold ${size}px Georgia`;x.textAlign=align;x.fillStyle='#0b1a24';x.fillText(t,a+2,b+2);x.fillStyle=col;x.fillText(t,a,b)}
+function ellipse(a,b,w,h,k){x.fillStyle=k;x.beginPath();x.ellipse(a,b,w,h,0,0,Math.PI*2);x.fill()}
 function tile(t,col,tree=false){rect(t[0],t[1],32,32,col)}
 function drawWorld(){
   // luminous high-detail meadow
@@ -76,18 +77,30 @@ function showToast(s){toast=s;toastT=180}
 let leagueBattle=false;
 function startBattle(isLeague=false){leagueBattle=isLeague;wild={name:isLeague?'AUREON':creatures[Math.floor(Math.random()*creatures.length)],level:isLeague?18+Math.floor(Math.random()*4):3+Math.floor(Math.random()*3)};wildMax=isLeague?85+wild.level*2:20+wild.level*3;wildHP=wildMax;battleStep=0;battleMsg=isLeague?`MASTER LEAGUE: ${wild.name} challenges you!`:`A wild ${wild.name} appeared!`;scene='battle'}
 function drawBattle(){
-  rect(0,0,W,H,'#bfe6c6');rect(0,0,W,170,'#91cfe1');for(let i=0;i<6;i++){rect(i*180-40,100+(i%2)*20,230,75,'#65af72');rect(i*180-20,90+(i%2)*20,190,55,'#78c486')}rect(0,350,W,190,'#e7d995');
-  // enemy creature
-  rect(625,150,170,145,'#87ad63');rect(650,120,120,130,wild.name==='Mossling'?'#72b96a':wild.name==='Embercub'?'#e88951':wild.name==='Shellbit'?'#67abc1':wild.name==='Voltfin'?'#d7bd54':'#72bd6b');rect(670,102,80,42,'#d9b86a');rect(675,85,70,30,'#365c46');rect(690,112,10,10,'#162229');rect(726,112,10,10,'#162229');rect(705,140,22,12,'#f0a887');rect(640,230,140,18,'#39794955');
+  // dimensional sky and animated arena
+  let sky=x.createLinearGradient(0,0,0,360);sky.addColorStop(0,'#74c7db');sky.addColorStop(.7,'#bfe7cf');sky.addColorStop(1,'#9bd6a3');rect(0,0,W,360,sky);
+  rect(0,330,W,210,'#d9c98a');
+  for(let i=0;i<7;i++){ellipse(i*170-35,355+(i%2)*18,130,42,i%2?'#78c47a':'#65aa67')}
+  ellipse(480,366,400,58,'#b19e65');ellipse(480,354,350,44,'#d8c991');ellipse(480,348,290,34,'#cbb878');
+  // clouds drifting through the 3D scene
+  let drift=(tick*.12)%1100-100;[drift,drift-420,drift+520].forEach((cx,i)=>{ellipse(cx,75+i*18,55,14,'#eaf8f2cc');ellipse(cx-30,82+i*18,36,11,'#eaf8f2cc');ellipse(cx+32,79+i*18,42,12,'#eaf8f2cc')});
+  // depth shadows
+  ellipse(710,274,90,24,'#39794955');ellipse(268,404,118,29,'#39794955');
+  let bob=Math.round(Math.sin(tick*.06)*5),enemyBob=Math.round(Math.sin(tick*.08+2)*4);
+  // enemy creature with rounded 3D shading
+  let ec=wild.name==='Mossling'?'#72b96a':wild.name==='Embercub'?'#e88951':wild.name==='Shellbit'?'#67abc1':wild.name==='Voltfin'?'#d7bd54':'#72bd6b';
+  ellipse(710,250+enemyBob,82,62,'#4d884f');ellipse(710,218+enemyBob,68,74,ec);ellipse(710,180+enemyBob,48,38,ec);
+  ellipse(685,205+enemyBob,12,16,'#e6f0d4');ellipse(735,205+enemyBob,12,16,'#e6f0d4');ellipse(689,205+enemyBob,5,7,'#17232a');ellipse(731,205+enemyBob,5,7,'#17232a');ellipse(710,228+enemyBob,18,8,'#f3c4a0');
+  ellipse(668,250+enemyBob,20,38,ec);ellipse(752,250+enemyBob,20,38,ec);
   rect(60,54,330,104,'#16384b');rect(66,60,318,92,'#fff8df');text(wild.name.toUpperCase(),86,92,20,'#18364a');text(`Lv ${wild.level}`,312,92,18,'#18364a','right');drawBar(86,122,wildHP,wildMax,274);
-  // player creature
-  rect(170,310,190,105,'#3d9658');rect(194,275,145,145,'#5f9c57');rect(220,260,95,70,'#75b96c');rect(230,245,75,55,'#75b96c');rect(235,270,12,10,'#17252a');rect(290,270,12,10,'#17252a');rect(245,300,30,14,'#d8d795');rect(160,390,215,22,'#39794955');
+  // hero creature with animated breathing and parallax pose
+  ellipse(268,376+bob,76,70,'#397d48');ellipse(268,328+bob,64,72,'#75b96c');ellipse(268,287+bob,48,42,'#75b96c');ellipse(268,270+bob,38,29,'#8bd17d');ellipse(250,292+bob,9,11,'#17252a');ellipse(286,292+bob,9,11,'#17252a');ellipse(268,319+bob,17,9,'#d8d795');ellipse(240,350+bob,18,32,'#62a95c');ellipse(296,350+bob,18,32,'#62a95c');
   rect(568,288,330,118,'#16384b');rect(574,294,318,106,'#fff8df');text('SPROUT',598,326,20,'#18364a');text(leagueBattle?'MASTER':'Lv 5',815,326,18,leagueBattle?'#a66d24':'#18364a','right');drawBar(598,350,partyHP,partyMax,268);
   rect(0,438,W,102,'#16384b');rect(10,448,940,82,'#f8efcf');text(battleMsg,36,494,21,'#18364a');
-  if(battleStep===0){drawMenu(['FIGHT','PACK','CUBE','RUN'],6)}
+  if(battleStep===0){drawMenu(['FIGHT','PACK','CUBE','RUN'],2)}
 }
 function drawBar(a,b,hp,max,w){rect(a,b,w,14,'#27343b');let pw=Math.max(0,w*(hp/max));rect(a+2,b+2,pw-4,10,hp/max>.5?'#54aa54':hp/max>.25?'#dfac43':'#d85d4b')}
-function drawMenu(items,cols){let start=610;for(let i=0;i<items.length;i++){let r=Math.floor(i/cols),q=i%cols;rect(start+q*160,470+r*35,145,27,i===battleStep%items.length?'#e7c85f':'#d3d0bd');text(items[i],start+q*160+72,489+r*35,14,i===battleStep%items.length?'#fff':'#18364a','center')}}
+function drawMenu(items,cols){let start=610;for(let i=0;i<items.length;i++){let r=Math.floor(i/cols),q=i%cols,px=start+q*160,py=466+r*31;rect(px,py,145,26,i===battleStep%items.length?'#e7c85f':'#d3d0bd');text(items[i],px+72,py+18,14,i===battleStep%items.length?'#fff':'#18364a','center')}}
 function battleAction(){if(battleStep===1)return;if(battleStep===0){battleStep=1;battleMsg='Choose a move!';setTimeout(()=>{battleStep=0;battleMsg='1) Leaf Lash  2) Quick Bite  3) Guard';battleMoveMenu=true},300)} }
 let battleMoveMenu=false;
 function handleBattleKey(k){if(k==='Escape'){if(battleMoveMenu){battleMoveMenu=false;battleStep=0;battleMsg=`What will SPROUT do?`};return}if(k==='Enter'){if(!battleMoveMenu){if(battleStep===0){battleMoveMenu=true;battleMsg='Leaf Lash   |   Quick Bite   |   Guard'}else if(battleStep===1){battleMsg='1) Leaf Lash  2) Quick Bite  3) Guard'};return}attack(0)}if(k==='ArrowRight'||k==='ArrowLeft'||k==='ArrowDown'||k==='ArrowUp'){battleStep=(battleStep+1)%4}}
