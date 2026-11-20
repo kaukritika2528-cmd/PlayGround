@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#101c22" />
+  <title>Wildbound — The open-world creature quest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Wildbound home"><span class="brand-mark">✳</span><span>WILDBOUND</span></a>
+      <div class="top-context"><span class="live-dot"></span><span id="regionLabel">SUNMEADOWS</span><span class="context-divider">/</span><span id="weatherLabel">CLEAR SKIES</span></div>
+      <div class="top-actions"><button class="icon-btn" id="soundBtn" aria-label="Toggle sound">♫</button><button class="icon-btn" id="helpBtn" aria-label="Help">?</button><div class="avatar">R</div></div>
+    </header>
+    <section class="game-layout">
+      <div class="play-column">
+        <section class="scene-wrap" aria-label="Open world game">
+          <canvas id="game" width="960" height="600" aria-label="Wildbound world. Use WASD or arrow keys to move."></canvas>
+          <div class="scene-topline"><div class="location-pill"><span class="pin">⌖</span><span id="locationName">Cloverfield</span><span class="loc-separator">·</span><span id="timeLabel">DAY 01</span></div><div class="weather-pill">☀ <span>24°</span></div></div>
+          <div class="scene-controls"><span class="keycap">W</span><span class="keycap">A</span><span class="keycap">S</span><span class="keycap">D</span><span class="control-hint">to explore</span><span class="control-split">·</span><span class="keycap wide">E</span><span class="control-hint">interact</span></div>
+          <div class="toast" id="toast" aria-live="polite"></div>
+          <div class="battle-overlay hidden" id="battleOverlay">
+            <div class="battle-card">
+              <div class="battle-eyebrow"><span class="battle-dot"></span><span id="battleTag">WILD ENCOUNTER</span></div>
+              <div class="battle-heading"><div><div id="enemyName" class="battle-name">Mossbit</div><div id="enemyMeta" class="battle-meta">WILD · LV 3</div></div><div class="enemy-portrait" id="enemyPortrait">🌱</div></div>
+              <div class="health-track"><div id="enemyHealth" class="health-fill"></div></div>
+              <div id="battleMessage" class="battle-message">A wild Mossbit appeared!</div>
+              <div id="battleActions" class="battle-actions">
+                <button class="battle-action primary" data-action="attack"><span>✦</span><span>Quick strike</span><small>FIGHT</small></button>
+                <button class="battle-action" data-action="capture"><span>◉</span><span>Wild orb <i id="orbCount">× 4</i></span><small>ITEM</small></button>
+                <button class="battle-action" data-action="team"><span>⌘</span><span>Switch buddy</span><small>TEAM</small></button>
+                <button class="battle-action" data-action="run"><span>↗</span><span>Retreat</span><small>RUN</small></button>
+              </div>
+              <button id="continueBattle" class="continue-btn hidden">CONTINUE <span>→</span></button>
+            </div>
+          </div>
+          <div class="menu-overlay hidden" id="menuOverlay"><div class="menu-card"><button class="close-btn" id="closeMenu">×</button><div class="menu-kicker">YOUR FIELD KIT</div><h2 id="menuTitle">Your team</h2><div id="menuContent"></div></div></div>
+        </section>
+        <div class="under-scene"><div class="field-tip"><span class="tip-icon">✦</span><span id="fieldTip">Follow the trail and see what the tall grass is hiding.</span></div><div class="coordinates" id="coordLabel">N 04° · E 12°</div></div>
+      </div>
+      <aside class="side-panel">
+        <div class="profile-card"><div class="trainer-avatar"><span>R</span><i>✦</i></div><div class="trainer-info"><div class="eyebrow">TRAILBLAZER · LV <span id="trainerLevel">01</span></div><div class="trainer-name">Ranger</div><div class="xp-row"><div class="xp-track"><span id="xpFill"></span></div><span id="xpText">0 / 40 XP</span></div></div><div class="streak">✧ <span id="winCount">0</span></div></div>
+        <section class="team-section"><div class="section-heading"><h2>Your buddies</h2><button class="text-button" id="teamBtn">VIEW TEAM <span>↗</span></button></div><div id="teamList" class="team-list"></div></section>
+        <section class="quest-card"><div class="quest-heading"><div class="quest-icon">⚑</div><div><div class="eyebrow">MAIN QUEST</div><h3 id="questTitle">A world to discover</h3></div><div class="quest-progress" id="badgeCount">0/3</div></div><p id="questDesc">Find the trail challengers across Sunmeadows and earn their crests.</p><div class="quest-steps" id="questSteps"></div><button id="questBtn" class="quest-button">OPEN QUEST LOG <span>→</span></button></section>
+        <section class="discovery-card"><div class="section-heading"><h2>Field journal</h2><span class="journal-count" id="dexCount">01 / 12</span></div><div class="journal-row"><div class="journal-art">✿</div><div><div class="journal-title">Creatures discovered</div><div class="journal-sub" id="journalSub">Your adventure is just beginning.</div></div><div class="journal-arrow">→</div></div><div class="journal-progress"><span id="dexFill"></span></div></section>
+        <div class="panel-footer"><button id="bagBtn" class="footer-tool"><span>▣</span> Field bag <b id="bagCount">4</b></button><button id="mapBtn" class="footer-tool"><span>⌖</span> World map</button><button id="saveBtn" class="footer-tool"><span>↻</span> Save</button></div>
+      </aside>
+    </section>
+    <nav class="mobile-controls" aria-label="Touch movement controls"><div><button data-dir="up">↑</button><button data-dir="left">←</button><button data-dir="down">↓</button><button data-dir="right">→</button></div><button class="mobile-interact" id="mobileInteract">E<br><small>ACT</small></button></nav>
+    <footer class="bottom-bar"><span>© WILDBOUND FIELD GUIDE</span><span>AN OPEN-WORLD CREATURE ADVENTURE</span><span>V 1.0.4 <b>●</b></span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
