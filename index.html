@@ -24,25 +24,51 @@ function rect(a,b,w,h,k){x.fillStyle=k;x.fillRect(a,b,w,h)}
 function text(t,a,b,size=20,col='#fff',align='left'){x.font=`bold ${size}px Georgia`;x.textAlign=align;x.fillStyle='#0b1a24';x.fillText(t,a+2,b+2);x.fillStyle=col;x.fillText(t,a,b)}
 function tile(t,col,tree=false){rect(t[0],t[1],32,32,col)}
 function drawWorld(){
-  for(let r=0;r<20;r++)for(let q=0;q<20;q++){let ch=map[r][q];if(ch==='#')rect(q*32,r*32,32,32,'#315c3c');else rect(q*32,r*32,32,32,(q+r)%2?'#74b34a':'#7cbf50');if(ch==='#'){rect(q*32,r*32+22,32,10,'#24452f');rect(q*32+5,r*32+5,5,5,'#4d8a52');rect(q*32+20,r*32+12,5,5,'#4d8a52')} }
-  // Paths
-  for(let r=0;r<20;r++)for(let q=0;q<20;q++){if(r===11&&q>=3&&q<=17)rect(q*32,r*32,32,32,'#c6b779');if(q===6&&r>=2&&r<=16)rect(q*32,r*32,32,32,'#c6b779')}
-  // pond and town hut
-  rect(12*32,2*32,7*32,5*32,'#61aeb4');for(let q=12;q<19;q++){rect(q*32,2*32+q%2*3,32,3,'#9dd2ca')}rect(13*32+8,3*32+4,6*32-16,3*32,'#59a1a8');
-  rect(3*32,8*32,3*32,2*32,'#a66d3d');rect(3*32+8,8*32+8,5*32-16,2*32-8,'#c58b51');rect(4*32+10,9*32+2,12,20,'#4b3328');rect(3*32,8*32,3*32,6,'#e3c172');
-  // trees / markers
-  for(let r=0;r<20;r++)for(let q=0;q<20;q++){let ch=map[r][q];if(ch==='T'){rect(q*32+5,r*32+18,22,14,'#6b4933');rect(q*32+2,r*32+3,28,24,'#2d7d40');rect(q*32+7,r*32-3,18,20,'#43a852');rect(q*32+13,r*32+2,5,5,'#74ca62')} }
-  // sign and NPC
-  rect(10*32+10,11*32+17,12,10,'#f1d38a');rect(10*32+14,11*32+24,4,8,'#6b4933');
-  rect(7*32+7,8*32+5,18,24,'#efb28f');rect(7*32+4,8*32+20,24,12,'#5c72a8');rect(7*32+7,8*32,18,8,'#57372a');
-  // player shadow and sprite
-  rect(player.x-10,player.y+12,20,5,'#39723f55');
-  if(player.dir===0||player.dir===2)rect(player.x-9,player.y-12,18,22,'#e8a189');else rect(player.x-9,player.y-12,18,22,'#d99a7f');
-  rect(player.x-12,player.y-14,24,8,'#d4b84c');rect(player.x-8,player.y+8,16,10,'#315a99');rect(player.x-10,player.y+16,7,5,'#563824');rect(player.x+3,player.y+16,7,5,'#563824');
-  if(player.dir===0)rect(player.x-6,player.y-8,4,3,'#203040');rect(player.x+3,player.y-8,4,3,'#203040');
-  // HUD
-  rect(16,16,220,58,'#102838');rect(22,22,208,46,'#f5eacb');text('VERDANT TOWN',34,52,20,'#17334a');rect(770,16,174,58,'#102838');rect(776,22,162,46,'#f5eacb');text('● '+coins+'  '+leagueRank,788,52,15,'#17334a');text(leaguePoints+' RP',788,66,11,'#17334a');
-  if(toastT>0){rect(250,444,460,58,'#102838ee');rect(258,452,444,42,'#f5eacb');text(toast,480,479,17,'#17334a','center')}
+  // luminous high-detail meadow
+  let grass=x.createLinearGradient(0,0,960,540);grass.addColorStop(0,'#79c95c');grass.addColorStop(.55,'#67b94f');grass.addColorStop(1,'#4d9b43');x.fillStyle=grass;x.fillRect(0,0,W,H);
+  for(let r=0;r<20;r++)for(let q=0;q<20;q++){let px=q*32,py=r*32,xor=(q*53+r*31)%17;
+    if((q+r)%2===0){rect(px,py,32,32,'rgba(255,255,180,.035)')}
+    if((q*7+r*11)%19===0){rect(px+8,py+13,2,11,'#91d56b');rect(px+10,py+16,2,8,'#91d56b');rect(px+6,py+20,8,2,'#4f9d45')}
+  }
+  // sculpted cobblestone road
+  for(let r=0;r<20;r++)for(let q=0;q<20;q++){if(r===11&&q>=3&&q<=17||q===6&&r>=2&&r<=16){
+    let g=x.createLinearGradient(q*32,r*32,q*32+32,r*32+32);g.addColorStop(0,'#decf9b');g.addColorStop(.5,'#cbb982');g.addColorStop(1,'#bda974');rect(q*32,r*32,32,32,g);
+    rect(q*32,r*32+29,32,3,'#9f925e99');rect(q*32+(r%2)*8,r*32+15,14,2,'#eee3bd88');rect(q*32+24,r*32+5,3,9,'#aa9b68');
+  }}
+  // grand pond with animated reflections
+  rect(12*32,2*32,7*32,5*32,'#3f94a4');rect(12*32+4,2*32+4,7*32-8,5*32-8,'#65b9c1');
+  for(let q=12;q<19;q++){for(let r=2;r<7;r++){if((q+r+Math.floor(tick/30))%5===0){rect(q*32+5,r*32+9,18,2,'#b8e7deaa')}}}
+  rect(13*32+12,3*32+12,5*32-24,2*32-20,'#98d9d0');rect(14*32+4,4*32+8,28,8,'#5eaaa6');
+  // beautiful cottage: stone base, timber frame, terracotta roof
+  rect(3*32-12,7*32+42,128,76,'#00000028');rect(3*32,8*32,96,64,'#eee1bd');rect(3*32+8,8*32+18,80,46,'#d8c898');
+  let roof=x.createLinearGradient(3*32,7*32,6*32,9*32+8);roof.addColorStop(0,'#b94d3e');roof.addColorStop(.55,'#da6a50');roof.addColorStop(1,'#87372f');
+  x.fillStyle=roof;x.beginPath();x.moveTo(3*32-10,8*32+12);x.lineTo(4*32+16,7*32-8);x.lineTo(6*32+12,8*32+12);x.lineTo(6*32+12,8*32+22);x.lineTo(3*32-10,8*32+22);x.closePath();x.fill();
+  for(let i=0;i<5;i++){rect(3*32+i*19-7,7*32+17+i*8,19,3,'#8e3d32');}rect(3*32+8,8*32+18,7,46,'#704b38');rect(6*32-15,8*32+18,7,46,'#704b38');
+  rect(4*32+25,8*32+42,18,29,'#5a3a2b');rect(4*32+28,8*32+45,12,26,'#3e2a22');rect(4*32+32,8*32+55,3,3,'#d9bd72');
+  rect(3*32+18,8*32+28,22,20,'#98cbd1');rect(3*32+21,8*32+31,16,14,'#57a4ad');rect(3*32+28,8*32+31,2,14,'#eadfbd');rect(3*32+21,8*32+37,16,2,'#eadfbd');
+  rect(5*32+34,7*32+2,18,24,'#7a4938');rect(5*32+38,7*32-4,10,8,'#9b5d49');
+  // flower beds
+  [[100,304,'#fff1a5'],[112,304,'#f48d96'],[124,304,'#b78fe5'],[136,304,'#fff1a5']].forEach(f=>{rect(f[0],f[1],5,8,f[2]);rect(f[0]+2,f[1]+8,2,6,'#3d8a3d')});
+  // detailed trees
+  for(let r=0;r<20;r++)for(let q=0;q<20;q++){let ch=map[r][q];if(ch==='T'||(ch==='#'&&q<3&&r>1&&r<18)){let cx=q*32+16,cy=r*32+17;
+    rect(cx-8,cy+9,16,12,'#60432d');rect(cx-4,cy+14,8,10,'#503924');
+    let c=x.createRadialGradient(cx-5,cy-7,3,cx,cy,24);c.addColorStop(0,'#67bf65');c.addColorStop(.55,'#398a45');c.addColorStop(1,'#236938');x.fillStyle=c;x.beginPath();x.arc(cx,cy,18,0,7);x.fill();
+    x.fillStyle='#82cb70';x.beginPath();x.arc(cx-8,cy-8,8,0,7);x.arc(cx+8,cy-5,7,0,7);x.fill();x.fillStyle='#a1da84';x.beginPath();x.arc(cx-9,cy-11,3,0,7);x.arc(cx+5,cy-10,3,0,7);x.fill();
+  }}
+  // fences around cottage
+  for(let q=3;q<7;q++){rect(q*32,9*32+7,5,18,'#8a653e');rect(q*32-3,9*32+8,28,4,'#b79455')}for(let r=8;r<11;r++){rect(7*32+2,r*32+10,5,18,'#8a653e')}
+  // sign and ranger
+  rect(10*32+10,11*32+17,12,10,'#f1d38a');rect(10*32+14,11*32+24,4,8,'#6b4933');rect(10*32+7,11*32+12,18,8,'#dcbf64');
+  rect(7*32+7,8*32+5,18,24,'#efb28f');rect(7*32+4,8*32+20,24,12,'#4f76b3');rect(7*32+7,8*32,18,8,'#57372a');rect(7*32+7,8*32+2,18,3,'#32608d');
+  // character shadow and detailed sprite
+  rect(player.x-12,player.y+13,24,6,'#17381755');
+  rect(player.x-9,player.y-12,18,24,'#e6a48a');rect(player.x-12,player.y-16,24,8,'#ebc54d');rect(player.x-10,player.y-14,20,3,'#fff09a');
+  rect(player.x-9,player.y+8,18,12,'#315a99');rect(player.x-6,player.y+10,12,7,'#436eae');rect(player.x-10,player.y+18,7,5,'#4e3427');rect(player.x+3,player.y+18,7,5,'#4e3427');
+  if(player.dir===0){rect(player.x-6,player.y-7,4,3,'#1e2933');rect(player.x+2,player.y-7,4,3,'#1e2933')}
+  // premium HUD
+  x.shadowColor='#0008';x.shadowBlur=12;rect(16,16,220,58,'#102838');x.shadowBlur=0;rect(22,22,208,46,'#fff7d9');text('VERDANT TOWN',34,52,20,'#17334a');
+  rect(770,16,174,58,'#102838');rect(776,22,162,46,'#fff7d9');text('● '+coins+'  '+leagueRank,788,52,15,'#17334a');text(leaguePoints+' RP',788,66,11,'#17334a');
+  if(toastT>0){rect(250,438,460,64,'#102838ee');rect(258,446,444,48,'#fff7d9');text(toast,480,477,17,'#17334a','center')}
 }
 function move(){let dx=0,dy=0;if(keys.ArrowLeft)dx=-1;if(keys.ArrowRight)dx=1;if(keys.ArrowUp)dy=-1;if(keys.ArrowDown)dy=1;if(dx&&dy)dy=0;if(!dx&&!dy)return; if(dx<0)player.dir=1;if(dx>0)player.dir=3;if(dy<0)player.dir=0;if(dy>0)player.dir=2;let nx=player.x+dx*2,ny=player.y+dy*2;let tr=Math.floor(ny/T),tc=Math.floor(nx/T);if(tr<0||tr>=20||tc<0||tc>=20||solids.has(map[tr][tc])||map[tr][tc]==='~')return;player.x=nx;player.y=ny;player.moving=true;if(Math.random()<0.012&&((tc>=11&&tc<=18)||(tr>=12&&tr<=17))){startBattle()} }
 function interact(){let px=Math.floor(player.x/T),py=Math.floor(player.y/T),dx=[0,0,-1,1][player.dir],dy=[-1,1,0,0][player.dir],tx=px+dx,ty=py+dy;if(tx===7&&ty===8){showToast('MASTER LEAGUE!');setTimeout(()=>startBattle(true),500)}else if(tx>=12&&tx<=18&&ty>=2&&ty<=6){showToast('Fresh pond water sparkles.')}else if(tx===10&&ty===11){showToast('TRAIL: League battles lie in the wild.')}else if(tx===4&&ty>=8&&ty<=10){showToast('Master League arena — enter and battle!');setTimeout(()=>startBattle(true),500)}else{showToast('Nothing to interact with here.')}}
