@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#c9edff" />
+  <title>MONSTER LEAGUE — Cedarfall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="game-shell">
+    <canvas id="world"></canvas>
+    <div class="vignette"></div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Monster League home"><span class="brand-mark">✦</span><span>MONSTER<span class="brand-light">LEAGUE</span></span></a>
+      <div class="season-pill"><span class="season-dot"></span> CEDARFALL REGION <span class="season-divider">/</span> DAY 01</div>
+      <button class="sound-button" id="sound-toggle" aria-label="Toggle sound">♫ <span>SOUND ON</span></button>
+    </header>
+    <section class="location-card">
+      <div class="location-eyebrow"><span class="eyebrow-line"></span> YOUR JOURNEY BEGINS</div>
+      <h1>Cedarfall <em>Town</em></h1>
+      <p>A little sunshine. A big adventure.</p>
+      <div class="weather"><span>☀</span> 24° <i></i> CLEAR SKIES</div>
+    </section>
+    <div class="quest-card" id="quest-card">
+      <div class="quest-icon">✧</div><div><div class="quest-caption">YOUR NEXT CHALLENGE</div><strong id="quest-title">The Master League</strong><small id="quest-copy">Head to the arena and make your mark.</small></div>
+      <span class="quest-arrow">↗</span>
+    </div>
+    <div class="world-hint" id="world-hint"><span class="keycap">WASD</span> MOVE <span class="hint-divider">·</span> <span class="keycap">DRAG</span> LOOK <span class="hint-divider">·</span> <span class="keycap">E</span> INTERACT</div>
+    <div class="player-chip"><div class="avatar">A</div><div><strong>ADVENTURER</strong><small>ROOKIE TRAINER</small></div><div class="chip-divider"></div><span class="chip-level">LV. 01</span></div>
+    <div class="team-rail" id="team-rail"><div class="rail-label">YOUR PARTNERS <span>03</span></div><div class="partner-row" data-mon="embercub"><span class="partner-dot fire">✦</span><div><strong>Embercub</strong><small>FIRE · LV. 12</small></div><div class="mini-hp"><i style="width:100%"></i></div></div><div class="partner-row" data-mon="tidefin"><span class="partner-dot water">✧</span><div><strong>Tidefin</strong><small>WATER · LV. 11</small></div><div class="mini-hp"><i style="width:100%"></i></div></div><div class="partner-row" data-mon="mossaur"><span class="partner-dot leaf">❋</span><div><strong>Mossaur</strong><small>GRASS · LV. 10</small></div><div class="mini-hp"><i style="width:100%"></i></div></div></div>
+    <button class="league-button" id="league-button"><span class="league-button-icon">✦</span><span><small>THE GATES ARE OPEN</small><strong>Challenge Master League</strong></span><span class="button-arrow">→</span></button>
+    <div class="controls-mobile" id="mobile-controls"><button class="move-btn up" data-dir="up">↑</button><button class="move-btn left" data-dir="left">←</button><button class="move-btn down" data-dir="down">↓</button><button class="move-btn right" data-dir="right">→</button></div>
+    <div class="battle-overlay" id="battle-overlay" aria-hidden="true">
+      <div class="battle-top"><div class="league-tag"><span>✦</span> MASTER LEAGUE <i>FINALS</i></div><button id="exit-battle" class="exit-battle">✕ <span>LEAVE BATTLE</span></button></div>
+      <div class="battle-opponent"><small>CHAMPION NOVA <span>·</span> LV. 18</small><h2>Frostfang</h2><div class="type-tag ice">❄ ICE</div><div class="battle-hp"><div class="hp-meta"><span>HP</span><b id="enemy-hp-text">100 / 100</b></div><div class="hp-track"><i id="enemy-hp-bar"></i></div></div></div>
+      <div class="battle-player"><div class="battle-name"><strong id="active-name">Embercub</strong><span id="active-level">LV. 12 · FIRE</span></div><div class="battle-hp"><div class="hp-meta"><span>HP</span><b id="player-hp-text">84 / 84</b></div><div class="hp-track"><i id="player-hp-bar"></i></div></div></div>
+      <div class="battle-message" id="battle-message"><span class="message-star">✦</span><span>Champion Nova is ready for a battle! Choose your move.</span></div>
+      <div class="battle-actions"><div class="action-heading"><span>CHOOSE YOUR MOVE</span><span class="action-subtitle">TYPE ADVANTAGE DEALS EXTRA DAMAGE</span></div><div class="move-grid" id="move-grid"></div><button id="switch-button" class="switch-button">⇄ <span>SWITCH PARTNER</span></button></div>
+      <div class="battle-switch" id="battle-switch"></div>
+      <div class="battle-result" id="battle-result"><div class="result-card"><div class="result-stars">✦ ✧ ✦</div><div class="result-eyebrow">A NEW CHAMPION RISES</div><h2>Victory is yours!</h2><p>You earned the <b>Master League Star</b> and 1,200 league points.</p><button id="continue-button">CONTINUE YOUR JOURNEY <span>→</span></button></div></div>
+      <div class="battle-flash" id="battle-flash"></div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </main>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
